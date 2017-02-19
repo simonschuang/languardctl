@@ -18,6 +18,10 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+
+	"database/sql"
+	_ "github.com/mattn/go-sqlite3"
+	"log"
 )
 
 // listCmd represents the list command
@@ -33,6 +37,29 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// TODO: Work your own magic here
 		fmt.Println("list called")
+		db, err := sql.Open("sqlite3", "/tmp/languard.db")
+		if err != nil {
+			log.Fatal(err)
+		}
+		rows, err := db.Query("select * from node")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var id int
+			var net_id int
+			var ipv4 string
+			var mac string
+			var hostname string
+			var groupname string
+			var online bool
+			err = rows.Scan(&id, &net_id, &ipv4, &mac, &hostname, &groupname, &online)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println(id, net_id, ipv4, mac, hostname, groupname, online)
+		}
 	},
 }
 
