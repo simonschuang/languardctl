@@ -15,7 +15,9 @@
 package cmd
 
 import (
+	"os"
 	"fmt"
+	"text/tabwriter"
 
 	"github.com/spf13/cobra"
 
@@ -36,30 +38,36 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// TODO: Work your own magic here
-		fmt.Println("list called")
+		// fmt.Println("list called")
+		w := tabwriter.NewWriter(os.Stdout, 10, 2, 2, ' ', 0)
+
 		db, err := sql.Open("sqlite3", "/tmp/languard.db")
 		if err != nil {
 			log.Fatal(err)
 		}
-		rows, err := db.Query("select * from node")
+		rows, err := db.Query("select id, if_name, vlan_id, ipv4, mac, hostname, groupname, state from node")
 		if err != nil {
 			log.Fatal(err)
 		}
 		defer rows.Close()
+		fmt.Fprintln(w, "ID\tDEVICE\tVLAN\tIPV4\tMAC\tHOST\tGROUP\tSTATE")
 		for rows.Next() {
-			var id int
-			var net_id int
+			var id string
+			var if_name string
+			var vlan_id int
 			var ipv4 string
 			var mac string
 			var hostname string
 			var groupname string
-			var online bool
-			err = rows.Scan(&id, &net_id, &ipv4, &mac, &hostname, &groupname, &online)
+			var state string
+			err = rows.Scan(&id, &if_name, &vlan_id, &ipv4, &mac, &hostname, &groupname, &state)
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Println(id, net_id, ipv4, mac, hostname, groupname, online)
+			fmt.Fprintf(w, "%s\t%s\t%d\t%s\t%s\t%s\t%s\t%s\n",
+				id, if_name, vlan_id, ipv4, mac, hostname, groupname, state)
 		}
+		w.Flush()
 	},
 }
 
