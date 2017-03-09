@@ -1,0 +1,7 @@
+#!/bin/bash
+mkdir -p build
+cd build
+gox -osarch="linux/amd64" -osarch="darwin/amd64" ../
+
+mv languardctl_linux_amd64 languardctl-Linux-x86_64
+mv languardctl_darwin_amd64 languardctl-Darwin-x86_64
