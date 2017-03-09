@@ -45,14 +45,13 @@ to quickly create a Cobra application.`,
 		if err != nil {
 			log.Fatal(err)
 		}
-		rows, err := db.Query("select id, if_name, vlan_id, ipv4, mac, hostname, groupname, state from node")
+		rows, err := db.Query("select if_name, vlan_id, ipv4, mac, hostname, groupname, state from node")
 		if err != nil {
 			log.Fatal(err)
 		}
 		defer rows.Close()
-		fmt.Fprintln(w, "ID\tDEVICE\tVLAN\tIPV4\tMAC\tHOST\tGROUP\tSTATE")
+		fmt.Fprintln(w, "DEVICE\tVLAN\tIPV4\tMAC\tHOST\tGROUP\tSTATE")
 		for rows.Next() {
-			var id string
 			var if_name string
 			var vlan_id int
 			var ipv4 string
@@ -60,12 +59,12 @@ to quickly create a Cobra application.`,
 			var hostname string
 			var groupname string
 			var state string
-			err = rows.Scan(&id, &if_name, &vlan_id, &ipv4, &mac, &hostname, &groupname, &state)
+			err = rows.Scan(&if_name, &vlan_id, &ipv4, &mac, &hostname, &groupname, &state)
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Fprintf(w, "%s\t%s\t%d\t%s\t%s\t%s\t%s\t%s\n",
-				id, if_name, vlan_id, ipv4, mac, hostname, groupname, state)
+			fmt.Fprintf(w, "%s\t%d\t%s\t%s\t%s\t%s\t%s\n",
+				if_name, vlan_id, ipv4, mac, hostname, groupname, state)
 		}
 		w.Flush()
 	},
