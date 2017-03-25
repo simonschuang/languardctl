@@ -26,10 +26,13 @@ import (
 	"log"
 )
 
-// listCmd represents the list command
-var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "list discovered nodes",
+func init() {
+	RootCmd.AddCommand(rangeCmd)
+}
+
+var rangeCmd = &cobra.Command{
+	Use:   "range",
+	Short: "A brief description of scan range",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 
@@ -37,50 +40,47 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// TODO: Work your own magic here
-		// fmt.Println("list called")
 		w := tabwriter.NewWriter(os.Stdout, 10, 2, 2, ' ', 0)
 
 		db, err := sql.Open("sqlite3", "/tmp/languard.db")
 		if err != nil {
 			log.Fatal(err)
 		}
-		rows, err := db.Query("select if_name, vlan_id, ipv4, mac, hostname, groupname, state from node")
+		sqlStmt := `create table if not exists range(
+			name varchar(40),
+			iface varchar(40),
+			local_ip varchar(40),
+			mask varchar(40),
+			vlan_id interger default 0,
+			start_ip varchar(40),
+			end_ip varchar(40),
+			gateway_ip varchar(40)
+		);`
+		_, err = db.Exec(sqlStmt)
+		if err != nil {
+			log.Printf("%q: %s\n", err, sqlStmt)
+			return
+		}
+		fmt.Fprintln(w, "NAME\tLOCALIP\tNETMASK\tVLANID\tSTART\tEND\tGATEWAY")
+		rows, err := db.Query("select name, local_ip, mask, vlan_id, start_ip, end_ip, gateway_ip from range")
 		if err != nil {
 			log.Fatal(err)
 		}
 		defer rows.Close()
-		fmt.Fprintln(w, "DEVICE\tVLAN\tIPV4\tMAC\tHOST\tGROUP\tSTATE")
 		for rows.Next() {
-			var if_name string
+			var name string
+			var local_ip string
+			var mask string
 			var vlan_id int
-			var ipv4 string
-			var mac string
-			var hostname string
-			var groupname string
-			var state string
-			err = rows.Scan(&if_name, &vlan_id, &ipv4, &mac, &hostname, &groupname, &state)
+			var start string
+			var end string
+			var gateway string
+			err = rows.Scan(&name, &local_ip, &mask, &vlan_id, &start, &end, &gateway)
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Fprintf(w, "%s\t%d\t%s\t%s\t%s\t%s\t%s\n",
-				if_name, vlan_id, ipv4, mac, hostname, groupname, state)
+			fmt.Fprintf(w, "%s\t%s\t%s\t%d\t%s\t%s\t%s\n", name, local_ip, mask, vlan_id, start, end, gateway)
 		}
 		w.Flush()
 	},
-}
-
-func init() {
-	RootCmd.AddCommand(listCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// listCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// listCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
 }
