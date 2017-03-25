@@ -47,14 +47,15 @@ to quickly create a Cobra application.`,
 			log.Fatal(err)
 		}
 		sqlStmt := `create table if not exists range(
-			name varchar(40),
+			name varchar(40) not null primary key,
 			iface varchar(40),
 			local_ip varchar(40),
 			mask varchar(40),
 			vlan_id interger default 0,
 			start_ip varchar(40),
 			end_ip varchar(40),
-			gateway_ip varchar(40)
+			gateway_ip varchar(40),
+			unique(name) on conflict replace
 		);`
 		_, err = db.Exec(sqlStmt)
 		if err != nil {

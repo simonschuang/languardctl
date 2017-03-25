@@ -42,7 +42,6 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var name string
-		var ipv4 string
 		var machine_uuid string
 		var serial_number string
 		w := tabwriter.NewWriter(os.Stdout, 10, 2, 2, ' ', 0)
@@ -54,7 +53,6 @@ to quickly create a Cobra application.`,
 		sqlStmt := `create table if not exists general(
 			id integer default 0,
 			name varchar(40),
-			ipv4 varchar(40),
 			machine_uuid varchar(200),
 			serial_number varchar(200),
 			unique(id) on conflict replace
@@ -65,32 +63,18 @@ to quickly create a Cobra application.`,
 			log.Printf("%q: %s\n", err, sqlStmt)
 			return
 		}
-		sqlStmt = `create table if not exists interface(
-			if_name varchar(40),
-			ipv4 varchar(40),
-			mask varchar(40),
-			ipv6 varchar(40),
-			mac varchar(40),
-			unique(if_name) on conflict replace
-		);`
-		_, err = db.Exec(sqlStmt)
-		if err != nil {
-			log.Printf("%q: %s\n", err, sqlStmt)
-			return
-		}
-		rows, err := db.Query("select name, ipv4, machine_uuid, serial_number from general")
+		rows, err := db.Query("select name, machine_uuid, serial_number from general")
 		if err != nil {
 			log.Fatal(err)
 		}
 		defer rows.Close()
 		for rows.Next() {
-			err = rows.Scan(&name, &ipv4, &machine_uuid, &serial_number)
+			err = rows.Scan(&name, &machine_uuid, &serial_number)
 			if err != nil {
 				log.Fatal(err)
 			}
 		}
 		fmt.Fprintf(w, "Name\t%s\n", name)
-		fmt.Fprintf(w, "ipv4\t%s\n", ipv4)
 		fmt.Fprintf(w, "machine_uuid\t%s\n", machine_uuid)
 		fmt.Fprintf(w, "serial_number\t%s\n", serial_number)
 		w.Flush()
