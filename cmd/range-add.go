@@ -26,7 +26,7 @@ import (
 var name string
 var iface string
 var localIp string
-var netMask string
+var netMask int
 var vlanId int
 var startIp string
 var endIp string
@@ -36,7 +36,7 @@ func init() {
 	rangeAddCmd.Flags().StringVarP(&name, "name", "n", "", "Name to give scan range.")
 	rangeAddCmd.Flags().StringVarP(&iface, "iface", "i", "", "Name of interface to scan range.")
 	rangeAddCmd.Flags().StringVarP(&localIp, "local", "l", "", "local IP address.")
-	rangeAddCmd.Flags().StringVarP(&netMask, "mask", "m", "", "Subnet Mask.")
+	rangeAddCmd.Flags().IntVarP(&netMask, "mask", "m", -1, "Subnet Mask Bits.")
 	rangeAddCmd.Flags().IntVarP(&vlanId, "vlan", "v", -1, "Vlan ID.")
 	rangeAddCmd.Flags().StringVarP(&startIp, "start", "s", "", "Start IP range.")
 	rangeAddCmd.Flags().StringVarP(&endIp, "end", "e", "", "End IP range.")
@@ -52,7 +52,7 @@ languardctl range-add -n range1 -i eth0 -l 192.168.99.100 -m 24 -v 10 -s 192.168
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Check inputs
-		if name == "" || iface == "" || localIp == "" || netMask =="" || vlanId == -1 || startIp == "" || endIp == "" || gatewayIp == "" {
+		if name == "" || iface == "" || localIp == "" || netMask == -1 || vlanId == -1 || startIp == "" || endIp == "" || gatewayIp == "" {
 			cmd.Help()
 			return
 		}
@@ -65,8 +65,8 @@ languardctl range-add -n range1 -i eth0 -l 192.168.99.100 -m 24 -v 10 -s 192.168
 			name varchar(40) not null primary key,
 			iface varchar(40),
 			local_ip varchar(40),
-			mask varchar(40),
-			vlan_id interger default 0,
+			mask integer default 0,
+			vlan_id integer default 0,
 			start_ip varchar(40),
 			end_ip varchar(40),
 			gateway_ip varchar(40),
