@@ -45,7 +45,18 @@ to quickly create a Cobra application.`,
 		if err != nil {
 			log.Fatal(err)
 		}
-		rows, err := db.Query("select if_name, vlan_id, ipv4, mac, hostname, groupname, state from node")
+		rows, err := db.Query("select count(*) from node where state == \"on\"")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer rows.Close()
+		total_on := 0
+		for rows.Next() {
+			rows.Scan(&total_on)
+		}
+		fmt.Fprintln(w, "Total up node: ",total_on)
+
+		rows, err = db.Query("select if_name, vlan_id, ipv4, mac, hostname, groupname, state from node")
 		if err != nil {
 			log.Fatal(err)
 		}

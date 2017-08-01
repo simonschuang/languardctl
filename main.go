@@ -15,7 +15,7 @@
 package main
 
 // import "github.com/snowhigh/languardctl/cmd"
-import "github.com/snowhigh/languardctl/cmd"
+import "github.com/simonschuang/languardctl/cmd"
 
 func main() {
 	cmd.Execute()
