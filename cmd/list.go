@@ -61,7 +61,7 @@ to quickly create a Cobra application.`,
 			log.Fatal(err)
 		}
 		defer rows.Close()
-		fmt.Fprintln(w, "DEVICE\tVLAN\tIPV4\tMAC\tHOST\tGROUP\tSTATE")
+		fmt.Fprintln(w, "DEVICE\tVLAN\tIPV4\tMAC\tHOST\tGROUP\tSTATE\tBLOCK")
 		for rows.Next() {
 			var if_name string
 			var vlan_id int
@@ -70,12 +70,17 @@ to quickly create a Cobra application.`,
 			var hostname string
 			var groupname string
 			var state string
-			err = rows.Scan(&if_name, &vlan_id, &ipv4, &mac, &hostname, &groupname, &state)
+			var block int
+			err = rows.Scan(&if_name, &vlan_id, &ipv4, &mac, &hostname, &groupname, &state, &block)
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Fprintf(w, "%s\t%d\t%s\t%s\t%s\t%s\t%s\n",
-				if_name, vlan_id, ipv4, mac, hostname, groupname, state)
+			is_block := False
+			if block != 0 {
+				is_block = True
+			}
+			fmt.Fprintf(w, "%s\t%d\t%s\t%s\t%s\t%s\t%s\t%t\n",
+				if_name, vlan_id, ipv4, mac, hostname, groupname, state, is_block)
 		}
 		w.Flush()
 	},
