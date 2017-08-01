@@ -25,12 +25,12 @@ import (
 )
 var blockIp string
 var blockMac string
-var vlanId int
+var blockvlanId int
 
 func init() {
 	blockCmd.Flags().StringVarP(&blockIp, "ip", "i", "", "Block IP address.")
-	blockCmd.Flags().IntVarP(&blockMac, "mac", "m", "", "Block MAC address.")
-	blockCmd.Flags().IntVarP(&vlanId, "vlan", "v", 0, "Vlan ID.")
+	blockCmd.Flags().StringVarP(&blockMac, "mac", "m", "", "Block MAC address.")
+	blockCmd.Flags().IntVarP(&blockvlanId, "vlan", "v", 0, "Vlan ID.")
 	RootCmd.AddCommand(blockCmd)
 }
 
@@ -62,7 +62,7 @@ languardctl block -v 10 -i 192.168.99.1 -m 02:42:1b:3c:69:ce
 			log.Fatal(err)
 		}
 		defer stmt.Close()
-		_, err = stmt.Exec(vlanId, blockIP, blockMac, 1)
+		_, err = stmt.Exec(blockvlanId, blockIp, blockMac, 1)
 		if err != nil {
 			log.Fatal(err)
 		}

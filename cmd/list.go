@@ -75,9 +75,9 @@ to quickly create a Cobra application.`,
 			if err != nil {
 				log.Fatal(err)
 			}
-			is_block := False
+			is_block := false
 			if block != 0 {
-				is_block = True
+				is_block = true
 			}
 			fmt.Fprintf(w, "%s\t%d\t%s\t%s\t%s\t%s\t%s\t%t\n",
 				if_name, vlan_id, ipv4, mac, hostname, groupname, state, is_block)
